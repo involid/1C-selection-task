@@ -6,7 +6,6 @@
 #include <openssl/evp.h>
 #include <string>
 #include <vector>
-#include <filesystem>
 using std::string;
 using std::vector;
 
@@ -37,7 +36,8 @@ size_t computeSHA256Hash(const string& data)
     return hasher(hexHash);
 }
 
-vector<size_t> compute_hashes(const string& filePath, size_t chunk_size = (1 << 12))
+vector<size_t>
+compute_hashes(const string& filePath, size_t chunk_size = (1 << 12))
 {
     vector<size_t> hashes;
     std::ifstream file(filePath);
@@ -98,8 +98,7 @@ size_t min(size_t a, size_t b, size_t c)
     return std::min(std::min(a, b), c);
 }
 
-template <typename T>
-size_t levenshtein_distance(const T& s1, const T& s2)
+template <typename T> size_t levenshtein_distance(const T& s1, const T& s2)
 {
     size_t len1 = s1.size();
     size_t len2 = s2.size();
@@ -166,19 +165,22 @@ void find_similarities(
                 found_similar2[j] = true;
                 continue;
             }
-            if (std::min(sizes1[i], sizes2[j]) * 100 < std::max(sizes1[i], sizes2[j]) * sim_percentage) {
+            if (std::min(sizes1[i], sizes2[j]) * 100 <
+                std::max(sizes1[i], sizes2[j]) * sim_percentage) {
                 continue;
             }
             double perc;
-            size_t chunk_size = std::max(sizes1[i], sizes2[j]) / MaxChunkSize + 1;
+            size_t chunk_size =
+                std::max(sizes1[i], sizes2[j]) / MaxChunkSize + 1;
             auto hash1 = compute_hashes(names1[i], chunk_size);
             auto hash2 = compute_hashes(names2[j], chunk_size);
             perc = static_cast<double>(levenshtein_distance(hash1, hash2)) /
-                          std::max(hash1.size(), hash2.size()) * 100;
-            similarities[i][j] = perc;
+                   std::max(hash1.size(), hash2.size()) * 100;
+            similarities[i][j] = perc * std::min(sizes1[i], sizes2[j]) /
+                                 std::max(sizes1[i], sizes2[j]);
         }
     }
-    
+
     for (int i = 0; i < names1.size(); ++i) {
         for (int j = 0; j < names2.size(); ++j) {
             if (similarities[i][j] >= sim_percentage) {
@@ -193,14 +195,12 @@ void find_similarities(
 
     for (int i = 0; i < names1.size(); ++i) {
         if (!found_similar1[i]) {
-            std::cout << names1[i] << " is not in "
-                      << dir_path2 << std::endl;
+            std::cout << names1[i] << " is not in " << dir_path2 << std::endl;
         }
     }
     for (int i = 0; i < names2.size(); ++i) {
         if (!found_similar2[i]) {
-            std::cout << names2[i] << " is not in "
-                      << dir_path1 << std::endl;
+            std::cout << names2[i] << " is not in " << dir_path1 << std::endl;
         }
     }
 }
