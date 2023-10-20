@@ -174,7 +174,7 @@ void find_similarities(
                 std::max(sizes1[i], sizes2[j]) / MaxChunkSize + 1;
             auto hash1 = compute_hashes(names1[i], chunk_size);
             auto hash2 = compute_hashes(names2[j], chunk_size);
-            double x = static_cast<double>(std::max(hash1.size(), hash2.size()));
+            double x = static_cast<double>(std::min(hash1.size(), hash2.size()));
             perc = x / (x + levenshtein_distance(hash1, hash2))
                     * 100;
             similarities[i][j] = perc;
